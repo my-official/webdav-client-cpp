@@ -29,6 +29,20 @@
 #include <string>
 #include <vector>
 
+//#define WDC_SHARED_LIB
+
+#ifndef WDC_API
+#ifdef WDC_SHARED_LIB
+#ifdef WDC_EXPORT
+#define WDC_API __declspec(dllexport)
+#else
+#define WDC_API __declspec(dllimport)
+#endif
+#else		
+#define WDC_API		
+#endif
+#endif
+
 namespace WebDAV
 {
   using progress_t = std::function<int(void* context,
@@ -48,8 +62,8 @@ namespace WebDAV
   /// \version 1.1.4
   /// \date 3/16/2018
   ///
-  class Client
-  {
+  class WDC_API Client
+  { 
   public:
 
     ///

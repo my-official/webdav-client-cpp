@@ -55,7 +55,16 @@ find_package(pugixml CONFIG REQUIRED)
 
 file(GLOB WDC_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/sources/*.cpp")
 
-add_library(libwdc ${${PROJECT_NAME}_SOURCES})
+option (Build_STATIC_WDC "Build WDC as static library" OFF)
+
+if (Build_STATIC_MyBCopy)
+	add_library(libwdc STATIC ${${PROJECT_NAME}_SOURCES})	
+else()
+	add_library(libwdc SHARED ${${PROJECT_NAME}_SOURCES})	
+	target_compile_definitions(libwdc PRIVATE WDC_EXPORT)
+	target_compile_definitions(libwdc PRIVATE WDC_SHARED_LIB)
+endif ()
+
 set_target_properties(libwdc PROPERTIES PREFIX "")
 set_target_properties(libwdc PROPERTIES IMPORT_PREFIX "")
 if(WDC_VERBOSE)
@@ -109,6 +118,8 @@ install(
   DESTINATION "${CONFIG_INSTALL_DIR}"
 )
 
+install(FILES $<TARGET_PDB_FILE:libwdc> DESTINATION bin OPTIONAL)
+
 install(EXPORT "${TARGETS_EXPORT_NAME}"
   NAMESPACE "${NAMESPACE}"
   DESTINATION "${CONFIG_INSTALL_DIR}"
@@ -124,7 +135,7 @@ if(BUILD_TESTS)
 
   file(GLOB ${PROJECT_NAME}_TEST_SOURCES tests/*.cpp)
   add_executable(check ${${PROJECT_NAME}_TEST_SOURCES})
-  target_link_libraries(check libwdc Catch2::Catch Boost::filesystem Boost::system)
+  target_link_libraries(check libwdc Catch2::Catch Boost::filesystem Boost::system bcrypt.lib)
 
   if(${CMAKE_BUILD_TYPE} MATCHES "Coverage")
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
